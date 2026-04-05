@@ -632,7 +632,14 @@
                 const el = document.createElement('div'); el.className = 'physics-item';
                 el.style.width = el.style.height = it.size + 'px'; el.innerHTML = it.svg;
                 document.getElementById('bagVisual').appendChild(el);
-                const b = createItemBody(it.shape, 120, -30, it.size);
+                // Spawn off-center with random offset and initial velocity
+                const spawnX = (Math.random() < 0.5 ? 40 + Math.random() * 50 : 150 + Math.random() * 50);
+                const b = createItemBody(it.shape, spawnX, -30, it.size);
+                const vx = (Math.random() - 0.5) * 4;
+                const vy = 1 + Math.random() * 2;
+                const spin = (Math.random() - 0.5) * 0.15;
+                Matter.Body.setVelocity(b, { x: vx, y: vy });
+                Matter.Body.setAngularVelocity(b, spin);
                 Matter.Composite.add(engine.world, b);
                 bodies.set(i, {body: b, el, size: it.size});
             }
