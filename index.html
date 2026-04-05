@@ -587,7 +587,7 @@
 
         function initPhysics() {
             if (typeof decomp !== 'undefined') Matter.Common.setDecomp(decomp);
-            engine = Matter.Engine.create(); engine.gravity.y = 0;
+            engine = Matter.Engine.create(); engine.gravity.y = 1.8;
             Matter.Composite.add(engine.world, [
                 Matter.Bodies.rectangle(120, 215, 240, 40, {isStatic:true}),
                 Matter.Bodies.rectangle(-10, 100, 20, 200, {isStatic:true}),
@@ -635,7 +635,7 @@
                 // Spawn off-center with random offset and initial velocity
                 const spawnX = (Math.random() < 0.5 ? 40 + Math.random() * 50 : 150 + Math.random() * 50);
                 const b = createItemBody(it.shape, spawnX, -30, it.size);
-                const vx = (Math.random() - 0.5) * 4;
+                const vx = 0;
                 const vy = 1 + Math.random() * 2;
                 const spin = (Math.random() - 0.5) * 0.15;
                 Matter.Body.setVelocity(b, { x: vx, y: vy });
