@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>0/1 Knapsack Problem - DP Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Permanent+Marker&family=JetBrains+Mono:wght@400;700&display=swap');
+
+        :root {
+            --bg-dark: #0f172a;
+            --panel-bg: rgba(30, 41, 59, 0.7);
+            --bag-color: #475569;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-dark);
+            color: #f8fafc;
+            background-image: radial-gradient(circle at top, #1e293b 0%, #0f172a 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .marker { font-family: 'Permanent Marker', cursive; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+
+        #brandTitle {
+            position: fixed;
+            top: 1.5rem;
+            left: 2rem;
+            z-index: 50;
+            pointer-events: none;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+        }
+
+        .overload-border {
+            border: 4px dashed #ef4444 !important;
+            animation: stripe-move 2s linear infinite;
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(239, 68, 68, 0.05) 10px, rgba(239, 68, 68, 0.05) 20px);
+        }
+
+        @keyframes stripe-move {
+            0% { background-position: 0 0; }
+            100% { background-position: 50px 50px; }
+        }
+
+        .knapsack-visual {
+            background: linear-gradient(180deg, rgba(71, 85, 105, 0.3) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border: 4px solid var(--bag-color);
+            border-top: none;
+            border-radius: 0 0 30px 30px;
+            height: 200px;
+            width: 240px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+            transform-origin: bottom center;
+        }
+
+        @keyframes subtle-shake {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(1px, 0) rotate(0.2deg); }
+            75% { transform: translate(-1px, 0) rotate(-0.2deg); }
+        }
+        .bag-overload-shake { animation: subtle-shake 0.3s infinite; }
+
+        .physics-item {
+            position: absolute;
+            will-change: transform;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        .item-card { transition: all 0.2s ease; cursor: pointer; }
+        .item-selected { border-color: #3b82f6; background: rgba(59,130,246,0.15); transform: translateY(-2px); }
+        .item-locked { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
+
+        .tab-btn { transition: all 0.3s; border-bottom: 2px solid transparent; opacity: 0.6; }
+        .tab-btn.active { border-bottom: 2px solid #3b82f6; color: #3b82f6; opacity: 1; }
+
+        .dp-table {
+            border-collapse: collapse;
+            font-size: 0.75rem;
+            width: 100%;
+        }
+        .dp-table th, .dp-table td {
+            border: 1px solid rgba(255,255,255,0.05);
+            padding: 10px;
+            text-align: center;
+            position: relative;
+        }
+        .dp-table th { background: rgba(15, 23, 42, 0.8); color: #64748b; font-weight: 600; }
+        .dp-highlight { background: rgba(16, 185, 129, 0.2); color: #10b981; font-weight: bold; box-shadow: inset 0 0 0 1px #10b981; }
+
+        /* Tooltip Style */
+        .dp-table td:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1e293b;
+            color: #f1f5f9;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 10px;
+            white-space: pre;
+            z-index: 100;
+            border: 1px solid #334155;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+
+        .bg-icon-container {
+            position: absolute;
+            bottom: -40px;
+            right: -40px;
+            opacity: 0.04;
+            pointer-events: none;
+            z-index: 0;
+            transform: rotate(-12deg);
+        }
+
+        .loot-svg { width: 100%; height: 100%; padding: 15%; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+
+        .lang-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 4px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 800;
+            transition: all 0.2s;
+            color: #64748b;
+        }
+        .lang-btn.active { background: #3b82f6; color: white; border-color: #3b82f6; }
+    </style>
+</head>
+<body class="p-4 md:p-8 select-none">
+
+    <div id="brandTitle" class="hidden md:block opacity-0 translate-x-[-20px]">
+        <h1 class="marker text-3xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-orange-600 uppercase opacity-40 hover:opacity-100 transition-opacity">THE KNACK</h1>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <header class="mb-10 flex flex-col items-center">
+            <div class="w-full flex justify-between items-start mb-4">
+                <div class="w-24 md:hidden">
+                    <h1 id="mobileBrandTitle" class="marker text-xl text-yellow-500 uppercase opacity-0 transition-opacity duration-300">KNACK</h1>
+                </div>
+                <div class="hidden md:block w-24"></div>
+
+                <div class="inline-flex items-center gap-6 bg-slate-900/60 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-700/50 shadow-2xl">
+                    <div class="flex flex-col items-center">
+                        <span data-i18n="max_capacity" class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mb-1">Max Capacity (W)</span>
+                        <span id="capDisplay" class="text-2xl font-mono font-bold text-white leading-none">10</span>
+                    </div>
+                    <div class="h-8 w-[1px] bg-slate-700"></div>
+                    <div class="flex gap-2">
+                        <button onclick="shuffleValues()" title="Shuffle Values" class="flex items-center justify-center w-10 h-10 bg-slate-800 hover:bg-slate-700 rounded-lg transition-all group border border-slate-600">
+                            <span class="text-xl group-hover:rotate-180 transition-transform">🎲</span>
+                        </button>
+                        <button onclick="openConfigModal()" title="Settings" class="flex items-center justify-center w-10 h-10 bg-slate-800 hover:bg-blue-600/20 rounded-lg transition-all border border-slate-600 text-slate-400 hover:text-blue-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="flex bg-slate-900/80 p-1 rounded-xl border border-slate-700 shadow-lg">
+                    <button onclick="setLanguage('en')" id="lang-en" class="lang-btn active">EN</button>
+                    <button onclick="setLanguage('tr')" id="lang-tr" class="lang-btn">TR</button>
+                </div>
+            </div>
+
+            <nav class="flex justify-center gap-12 border-b border-slate-800 w-full">
+                <button onclick="switchTab('visualizer')" id="tabBtn-visualizer" data-i18n="nav_solution" class="tab-btn active px-4 py-3 text-xs font-bold tracking-widest uppercase">Solution</button>
+                <button onclick="switchTab('game')" id="tabBtn-game" data-i18n="nav_game" class="tab-btn px-4 py-3 text-xs font-bold tracking-widest uppercase">Play The Knack</button>
+            </nav>
+        </header>
+
+        <div id="tab-visualizer" class="space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                <div class="glass-panel p-6 flex flex-col">
+                    <div class="mb-6 flex justify-between items-center">
+                        <div>
+                            <h3 data-i18n="dataset_title" class="text-sm font-bold text-white mb-1">Dataset</h3>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">S = { (Value, Weight) }</p>
+                        </div>
+                        <span id="itemCountBadge" class="bg-blue-500/10 text-blue-400 text-[10px] px-2 py-1 rounded font-bold ring-1 ring-blue-500/20">5 Items</span>
+                    </div>
+                    <div id="labItemList" class="space-y-3 overflow-y-auto max-h-[450px] custom-scrollbar pr-2"></div>
+                </div>
+
+                <div class="lg:col-span-3 glass-panel p-6 overflow-hidden flex flex-col relative">
+                    <div class="mb-6">
+                        <h3 data-i18n="dp_table_title" class="text-sm font-bold text-white mb-1">Sub-problem Solutions (DP Table)</h3>
+                        <p data-i18n="dp_table_hint" class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">Hover over cells to see the logic</p>
+                    </div>
+                    <div class="overflow-x-auto custom-scrollbar pt-4 pb-8">
+                        <table id="dpTable" class="dp-table mono"></table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-10 relative overflow-hidden">
+                <div class="bg-icon-container">
+                    <svg width="460" height="460" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+                        <path d="M4 20V10c0-2.2 1.8-4 4-4h8c2.2 0 4 1.8 4 4v10a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2Z"/><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/><path d="M8 22V10"/><path d="M16 22V10"/><path d="M4 15h16"/>
+                    </svg>
+                </div>
+                <div class="relative z-10">
+                    <div class="flex items-center gap-3 mb-8">
+                        <h3 data-i18n="backtrack_path" class="text-lg font-bold text-white uppercase tracking-widest">Backtrack Path</h3>
+                    </div>
+                    <div id="solverSteps" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Tab Hidden initially -->
+        <div id="tab-game" class="hidden space-y-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <div class="lg:col-span-3 flex flex-col gap-6">
+                    <div class="glass-panel p-6">
+                        <h3 data-i18n="available_items" class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-widest">Available Items</h3>
+                        <div id="lootGrid" class="space-y-3"></div>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <button onclick="clearSelection()" data-i18n="reset_items" class="w-full text-slate-500 hover:text-slate-300 py-1 text-[10px] uppercase font-bold tracking-widest transition-all">Reset Items</button>
+                        <button id="commitBtn" onclick="submitSelection()" class="w-full bg-slate-800 hover:bg-emerald-600/80 py-4 rounded-xl font-bold transition-all shadow-xl text-xs uppercase tracking-[0.2em] border border-slate-700 flex items-center justify-center gap-2">
+                            <span data-i18n="confirm_selection">Confirm Selection</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-6 glass-panel p-8 flex flex-col items-center relative min-h-[500px]">
+                    <div id="bagContainer" class="relative w-full max-w-[240px] mt-12 mb-10">
+                        <div class="w-1/2 h-4 bg-slate-600 rounded-t-xl mx-auto mb-[-4px] border-t border-x border-slate-500 shadow-inner opacity-20"></div>
+                        <div id="bagVisual" class="knapsack-visual w-full"></div>
+                    </div>
+                    <div class="grid grid-cols-2 w-full gap-6 max-w-md">
+                        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 text-center relative overflow-hidden" id="weightBox">
+                            <p data-i18n="total_weight" class="text-[11px] uppercase font-bold text-slate-500 tracking-[0.25em] mb-2">Total Weight</p>
+                            <p class="text-5xl font-mono font-extrabold tracking-tighter"><span id="userWeight">0</span><span class="text-base text-slate-500 ml-1 font-normal">kg</span></p>
+                            <div id="weightBar" class="absolute bottom-0 left-0 h-1 bg-blue-500 transition-all w-0"></div>
+                        </div>
+                        <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800 text-center">
+                            <p data-i18n="total_value" class="text-[11px] uppercase font-bold text-slate-500 tracking-[0.25em] mb-2">Total Value</p>
+                            <p class="text-5xl font-mono font-extrabold tracking-tighter text-yellow-500">$<span id="userValue">0</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-3 flex flex-col gap-6">
+                    <div class="glass-panel p-6 flex-grow">
+                        <h3 data-i18n="inventory_log" class="text-xs font-bold text-slate-400 uppercase mb-4 tracking-widest">Inventory Log</h3>
+                        <div id="inventoryTrace" class="space-y-2 overflow-y-auto max-h-[300px] mono text-[11px] custom-scrollbar"></div>
+                    </div>
+                    <button onclick="compareWithAI()" data-i18n="view_analysis" class="w-full bg-blue-600 hover:bg-blue-500 py-5 rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-2xl">View Analysis</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="configModal" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-[100] p-6 backdrop-blur-md">
+        <div class="glass-panel p-8 max-w-md w-full border-slate-700 relative">
+            <h2 data-i18n="config_title" class="text-xl font-bold text-white mb-6 uppercase tracking-widest">Settings</h2>
+            <div class="space-y-6 mb-8">
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase font-black tracking-widest mb-3">Capacity</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="inputCapRange" min="5" max="20" class="flex-grow">
+                        <span id="inputCapVal" class="w-10 text-center font-mono font-bold">10</span>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[10px] text-slate-400 uppercase font-black tracking-widest mb-3">Items</label>
+                    <div class="flex items-center gap-4">
+                        <input type="range" id="inputCountRange" min="3" max="8" class="flex-grow">
+                        <span id="inputCountVal" class="w-10 text-center font-mono font-bold">5</span>
+                    </div>
+                </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeConfigModal()" class="py-3 rounded-xl border border-slate-700 text-slate-400">Cancel</button>
+                <button onclick="applyConfig()" class="py-3 rounded-xl bg-blue-600 text-white font-bold">Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="resultModal" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-[100] p-6 backdrop-blur-md">
+        <div class="glass-panel p-10 max-w-xl w-full text-center border-slate-700">
+            <h2 class="text-xl font-bold text-blue-400 mb-8 uppercase tracking-[0.3em]">Verdict</h2>
+            <div class="grid grid-cols-2 gap-6 mb-8">
+                <div class="bg-slate-900/80 p-6 rounded-2xl border border-slate-800">
+                    <p class="text-[10px] text-slate-500 uppercase mb-2">Your Score</p>
+                    <p class="text-4xl font-mono font-bold">$<span id="resUserV">0</span></p>
+                </div>
+                <div class="bg-slate-900/80 p-6 rounded-2xl border border-emerald-500/20">
+                    <p class="text-[10px] text-slate-400 uppercase mb-2">Optimal</p>
+                    <p class="text-4xl font-mono font-bold text-emerald-400">$<span id="resAiV">0</span></p>
+                </div>
+            </div>
+            <p id="resMsg" class="mb-10 text-slate-300 italic"></p>
+            <button onclick="closeModal()" class="w-full bg-slate-800 py-4 rounded-xl font-bold uppercase tracking-widest">Back</button>
+        </div>
+    </div>
+
+    <script>
+        const i18n = {
+            en: {
+                max_capacity: "Max Capacity (W)", nav_solution: "Solution", nav_game: "Play The Knack",
+                dataset_title: "Dataset", dp_table_title: "DP Table", dp_table_hint: "Hover over cells for logic",
+                backtrack_path: "Backtrack Path", available_items: "Items", reset_items: "Reset Selection",
+                confirm_selection: "Confirm Selection", total_weight: "Total Weight", total_value: "Total Value",
+                inventory_log: "Inventory Log", view_analysis: "View Analysis", config_title: "Settings",
+                overloaded: "OVERLOADED", picked: "Picked", skipped: "Skipped", row_empty: "Empty",
+                tip_base: "Base case: Value is 0",
+                tip_skip: "Item too heavy: Take previous best value",
+                tip_compare: "Comparing options:\n1. Keep previous best: {prev}\n2. Pick this (+${val}): {calc}\nResult: Max of both"
+            },
+            tr: {
+                max_capacity: "Maks. Kapasite", nav_solution: "Analiz", nav_game: "Oyunu Oyna",
+                dataset_title: "Veri Seti", dp_table_title: "DP Tablosu", dp_table_hint: "Mantık için üzerine gel",
+                backtrack_path: "Geri İzleme", available_items: "Eşyalar", reset_items: "Seçimi Sıfırla",
+                confirm_selection: "Seçimi Onayla", total_weight: "Toplam Ağırlık", total_value: "Toplam Değer",
+                inventory_log: "Envanter Kaydı", view_analysis: "Analiz Et", config_title: "Ayarlar",
+                overloaded: "AŞILDI", picked: "Alındı", skipped: "Geçildi", row_empty: "Boş",
+                tip_base: "Temel durum: Değer 0",
+                tip_skip: "Eşya çok ağır: Önceki en iyi değeri al",
+                tip_compare: "Seçenekleri karşılaştır:\n1. Önceki en iyiyi koru: {prev}\n2. Bunu al (+${val}): {calc}\nSonuç: İkisinden büyüğü"
+            }
+        };
+
+        let currentLang = 'en', capacity = 10, items = [], userIndices = new Set(), itemCount = 5;
+        let engine, runner, bodies = new Map(), dpMatrix = [], currentOptimalValue = 0, isLocked = false;
+
+        const lootIcons = {
+            gold: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#FBBF24" stroke="#D97706" stroke-width="1.5"/></svg>`,
+            diamond: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M6 3L18 3L22 9L12 21L2 9L6 3Z" fill="#22D3EE" stroke="#0891B2" stroke-width="1.5"/></svg>`,
+            artifact: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M8 22V17M16 22V17M4 17H20V11C20 8.5 18 4 12 4C6 4 4 8.5 4 11V17ZM12 4V2M12 11V13" stroke="#9A3412" stroke-width="2"/></svg>`,
+            file: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M13 2H6C5.44772 2 5 2.44772 5 3V21C5 21.5523 5.44772 22 6 22H18C18.5523 22 19 21.5523 19 21V8L13 2Z" fill="#3B82F6" stroke="#1D4ED8" stroke-width="1.5"/></svg>`,
+            painting: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" fill="#E11D48" stroke="#9F1239" stroke-width="1.5"/></svg>`,
+            vase: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M19 10V6L15 2H9L5 6V10C5 13.3137 7.68629 16 11 16V22H13V16C16.3137 16 19 13.3137 19 10Z" fill="#8B5CF6" stroke="#5B21B6" stroke-width="1.5"/></svg>`,
+            crown: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M2 18L5 7L9 11L12 3L15 11L19 7L22 18H2Z" fill="#F59E0B" stroke="#B45309" stroke-width="1.5"/></svg>`,
+            skull: `<svg class="loot-svg" viewBox="0 0 24 24" fill="none"><path d="M5 10C5 6.13401 8.13401 3 12 3C15.866 3 19 6.13401 19 10C19 12.83 17.3 15.26 14.86 16.33L15 21H9L9.14 16.33C6.7 15.26 5 12.83 5 10Z" fill="#94A3B8" stroke="#475569" stroke-width="1.5"/></svg>`
+        };
+
+        const types = [
+            {en:'Gold', tr:'Altın', i:lootIcons.gold, c:'bg-yellow-500/20'},
+            {en:'Diamond', tr:'Elmas', i:lootIcons.diamond, c:'bg-cyan-400/20'},
+            {en:'Artifact', tr:'Eser', i:lootIcons.artifact, c:'bg-orange-700/20'},
+            {en:'File', tr:'Dosya', i:lootIcons.file, c:'bg-blue-400/20'},
+            {en:'Painting', tr:'Tablo', i:lootIcons.painting, c:'bg-rose-600/20'},
+            {en:'Vase', tr:'Vazo', i:lootIcons.vase, c:'bg-violet-600/20'},
+            {en:'Crown', tr:'Taç', i:lootIcons.crown, c:'bg-amber-600/20'},
+            {en:'Skull', tr:'Kafatası', i:lootIcons.skull, c:'bg-slate-500/20'}
+        ];
+
+        function setLanguage(lang) {
+            currentLang = lang;
+            document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.toggle('active', btn.id === `lang-${lang}`));
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(i18n[lang][key]) el.innerText = i18n[lang][key];
+            });
+            updateUI(); populateLab();
+        }
+
+        function shuffleValues() {
+            items = Array.from({length: itemCount}, (_, i) => ({
+                ...types[i % types.length], v: Math.floor(Math.random()*30)+20, w: Math.floor(Math.random()*5)+2
+            }));
+            items.forEach(it => it.size = 35 + (it.w * 3.5));
+            clearSelection(); calculateOptimal(); updateUI(); populateLab();
+        }
+
+        function calculateOptimal() {
+            const n = items.length;
+            const m = Array(n+1).fill().map(()=>Array(capacity+1).fill(0));
+            for(let i=1; i<=n; i++) {
+                for(let w=0; w<=capacity; w++) {
+                    if(items[i-1].w <= w) m[i][w] = Math.max(items[i-1].v + m[i-1][w-items[i-1].w], m[i-1][w]);
+                    else m[i][w] = m[i-1][w];
+                }
+            }
+            dpMatrix = m; currentOptimalValue = m[n][capacity];
+        }
+
+        function populateLab() {
+            const labList = document.getElementById('labItemList');
+            labList.innerHTML = items.map(it =>
+                `<div class="bg-slate-900/40 p-4 rounded-xl border border-slate-700/40 flex justify-between items-center"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-lg ${it.c} flex items-center justify-center">${it.i}</div><div><p class="text-xs font-bold text-slate-200">${it[currentLang]}</p><p class="text-[10px] font-mono text-slate-500">$${it.v} | ${it.w}kg</p></div></div></div>`
+            ).join('');
+
+            const table = document.getElementById('dpTable');
+            let tableHtml = '<thead><tr><th></th>' + Array.from({length:capacity+1}, (_, i)=>`<th class="text-[10px]">${i}</th>`).join('') + '</tr></thead><tbody>';
+
+            dpMatrix.forEach((row, i) => {
+                tableHtml += `<tr><th class="text-[10px] pr-4">${i===0 ? i18n[currentLang].row_empty : `<div class="w-6 h-6 mx-auto">${items[i-1].i}</div>`}</th>`;
+                row.forEach((val, w) => {
+                    let tip = "";
+                    if (i === 0 || w === 0) tip = i18n[currentLang].tip_base;
+                    else {
+                        const item = items[i-1];
+                        if (item.w > w) tip = i18n[currentLang].tip_skip;
+                        else {
+                            const prev = dpMatrix[i-1][w];
+                            const calc = item.v + dpMatrix[i-1][w-item.w];
+                            tip = i18n[currentLang].tip_compare
+                                .replace('{prev}', prev)
+                                .replace('{val}', item.v)
+                                .replace('{calc}', calc);
+                        }
+                    }
+                    tableHtml += `<td data-tooltip="${tip}" class="${(i===items.length && w===capacity) ? 'dp-highlight' : ''}">${val}</td>`;
+                });
+                tableHtml += '</tr>';
+            });
+            table.innerHTML = tableHtml;
+
+            const stepsDiv = document.getElementById('solverSteps');
+            let backtrackW = capacity;
+            stepsDiv.innerHTML = items.slice().reverse().map((it, idx) => {
+                const i = items.length - idx;
+                const pick = dpMatrix[i][backtrackW] !== dpMatrix[i-1][backtrackW];
+                if(pick) backtrackW -= it.w;
+                return `<div class="bg-slate-900/50 p-6 rounded-2xl border border-slate-800 transition-all ${pick ? 'ring-1 ring-emerald-500' : ''}"><div class="flex justify-between items-center mb-4"><div class="w-12 h-12 rounded-xl ${it.c} flex items-center justify-center">${it.i}</div><span class="${pick ? 'text-emerald-400' : 'text-slate-600'} text-[10px] font-black uppercase">${pick ? i18n[currentLang].picked : i18n[currentLang].skipped}</span></div><p class="text-sm font-bold text-white mb-1">${it[currentLang]}</p><p class="text-[10px] font-mono text-slate-500">${it.w}kg | $${it.v}</p></div>`;
+            }).reverse().join('');
+        }
+
+        function initPhysics() {
+            engine = Matter.Engine.create(); engine.gravity.y = 1.8;
+            Matter.Composite.add(engine.world, [
+                Matter.Bodies.rectangle(120, 215, 240, 40, {isStatic:true}),
+                Matter.Bodies.rectangle(-10, 100, 20, 200, {isStatic:true}),
+                Matter.Bodies.rectangle(250, 100, 20, 200, {isStatic:true})
+            ]);
+            runner = Matter.Runner.create(); Matter.Runner.run(runner, engine);
+            renderPhysics();
+        }
+
+        function renderPhysics() {
+            bodies.forEach(obj => {
+                const {x, y} = obj.body.position;
+                obj.el.style.transform = `translate(${x - obj.size/2}px, ${y - obj.size/2}px) rotate(${obj.body.angle}rad)`;
+            });
+            requestAnimationFrame(renderPhysics);
+        }
+
+        function toggle(i) {
+            if(userIndices.has(i)) {
+                userIndices.delete(i);
+                const obj = bodies.get(i);
+                if(obj) { Matter.Composite.remove(engine.world, obj.body); obj.el.remove(); bodies.delete(i); }
+            } else {
+                userIndices.add(i);
+                const it = items[i];
+                const el = document.createElement('div'); el.className = 'physics-item ' + it.c;
+                el.style.width = el.style.height = it.size + 'px'; el.innerHTML = it.i;
+                document.getElementById('bagVisual').appendChild(el);
+                const b = Matter.Bodies.rectangle(120, -30, it.size, it.size, { restitution: 0.3, friction: 0.2, chamfer: { radius: 10 } });
+                Matter.Composite.add(engine.world, b);
+                bodies.set(i, {body: b, el, size: it.size});
+            }
+            updateUI();
+        }
+
+        function updateUI() {
+            const grid = document.getElementById('lootGrid');
+            const trace = document.getElementById('inventoryTrace');
+            const commitBtn = document.getElementById('commitBtn');
+            grid.innerHTML = ''; trace.innerHTML = '';
+            let totalW = 0, totalV = 0;
+
+            items.forEach((it, i) => {
+                const sel = userIndices.has(i);
+                if(sel) { totalW += it.w; totalV += it.v; }
+                const card = document.createElement('div');
+                card.className = `item-card glass-panel p-3 flex justify-between items-center ${sel ? 'item-selected border-blue-500/50' : 'border-slate-800'} ${isLocked ? 'item-locked' : 'hover:bg-white/5'}`;
+                card.onclick = () => !isLocked && toggle(i);
+                card.innerHTML = `<div class="flex items-center gap-3"><div class="w-10 h-10 rounded-lg ${it.c} flex items-center justify-center">${it.i}</div><div><p class="text-xs font-bold text-slate-200">${it[currentLang]}</p><p class="text-[10px] font-mono text-slate-500">${it.w}kg | $${it.v}</p></div></div>` + (sel ? '✓' : '');
+                grid.appendChild(card);
+                if(sel) {
+                    const t = document.createElement('div'); t.className = "flex justify-between items-center text-slate-400 py-1.5 border-b border-slate-800/50 text-[10px]";
+                    t.innerHTML = `<div class="flex items-center gap-2"><div class="w-4 h-4">${it.i}</div><span>${it[currentLang]}</span></div><span class="font-mono text-yellow-500">$${it.v}</span>`;
+                    trace.appendChild(t);
+                }
+            });
+
+            document.getElementById('userWeight').innerText = totalW;
+            document.getElementById('userValue').innerText = totalV;
+            document.getElementById('weightBar').style.width = Math.min((totalW/capacity)*100, 100) + '%';
+
+            if(totalW > capacity) {
+                document.getElementById('bagVisual').classList.add('overload-border', 'bag-overload-shake');
+                document.getElementById('weightBox').classList.add('border-red-900', 'bg-red-950/20');
+                commitBtn.classList.add('btn-overload');
+                commitBtn.innerText = i18n[currentLang].overloaded;
+                commitBtn.disabled = true;
+            } else {
+                document.getElementById('bagVisual').classList.remove('overload-border', 'bag-overload-shake');
+                document.getElementById('weightBox').classList.remove('border-red-900', 'bg-red-950/20');
+                commitBtn.classList.remove('btn-overload');
+                commitBtn.disabled = isLocked;
+                commitBtn.innerText = i18n[currentLang].confirm_selection;
+            }
+        }
+
+        function clearSelection() {
+            userIndices.clear();
+            bodies.forEach(b => { Matter.Composite.remove(engine.world, b.body); b.el.remove(); });
+            bodies.clear();
+            isLocked = false;
+            updateUI();
+        }
+
+        function openConfigModal() {
+            document.getElementById('inputCapRange').value = capacity; document.getElementById('inputCountRange').value = itemCount;
+            document.getElementById('inputCapVal').innerText = capacity; document.getElementById('inputCountVal').innerText = itemCount;
+            document.getElementById('configModal').classList.remove('hidden'); document.getElementById('configModal').classList.add('flex');
+        }
+
+        function closeConfigModal() { document.getElementById('configModal').classList.add('hidden'); document.getElementById('configModal').classList.remove('flex'); }
+
+        function applyConfig() {
+            capacity = parseInt(document.getElementById('inputCapRange').value);
+            itemCount = parseInt(document.getElementById('inputCountRange').value);
+            document.getElementById('capDisplay').innerText = capacity;
+            shuffleValues(); closeConfigModal();
+        }
+
+        function compareWithAI() {
+            let uV = 0; userIndices.forEach(i => uV += items[i].v);
+            document.getElementById('resUserV').innerText = uV; document.getElementById('resAiV').innerText = currentOptimalValue;
+            document.getElementById('resMsg').innerText = uV >= currentOptimalValue ? "Perfect strategy!" : "Good, but not optimal.";
+            document.getElementById('resultModal').classList.remove('hidden'); document.getElementById('resultModal').classList.add('flex');
+        }
+
+        function closeModal() { document.getElementById('resultModal').classList.add('hidden'); isLocked = false; updateUI(); }
+
+        function switchTab(t) {
+            const isGame = t === 'game';
+            document.getElementById('tab-game').classList.toggle('hidden', !isGame);
+            document.getElementById('tab-visualizer').classList.toggle('hidden', isGame);
+            document.getElementById('tabBtn-game').classList.toggle('active', isGame);
+            document.getElementById('tabBtn-visualizer').classList.toggle('active', !isGame);
+
+            const desktopBrand = document.getElementById('brandTitle');
+            const mobileBrand = document.getElementById('mobileBrandTitle');
+            if (isGame) {
+                desktopBrand.classList.remove('opacity-0', 'translate-x-[-20px]');
+                desktopBrand.classList.add('opacity-100', 'translate-x-0');
+                mobileBrand.classList.add('opacity-100');
+            } else {
+                desktopBrand.classList.add('opacity-0', 'translate-x-[-20px]');
+                desktopBrand.classList.remove('opacity-100', 'translate-x-0');
+                mobileBrand.classList.remove('opacity-100');
+            }
+        }
+
+        document.getElementById('inputCapRange').oninput = (e) => document.getElementById('inputCapVal').innerText = e.target.value;
+        document.getElementById('inputCountRange').oninput = (e) => document.getElementById('inputCountVal').innerText = e.target.value;
+
+        window.onload = () => { initPhysics(); shuffleValues(); setLanguage('en'); };
+    </script>
+</body>
+</html>
