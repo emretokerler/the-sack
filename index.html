@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>0/1 Knapsack Problem - DP Analysis</title>
+    <title>The Sack - 0/1 Knapsack Problem</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/poly-decomp@0.3.0/build/decomp.min.js"></script>
@@ -226,14 +226,14 @@
 <body class="p-4 md:p-8 select-none">
 
     <div id="brandTitle" class="hidden md:block opacity-0 translate-x-[-20px]">
-        <h1 class="marker text-3xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-orange-600 uppercase opacity-40 hover:opacity-100 transition-opacity">THE KNACK</h1>
+        <h1 class="marker text-3xl text-transparent bg-clip-text bg-gradient-to-br from-yellow-400 to-orange-600 uppercase opacity-40 hover:opacity-100 transition-opacity">THE SACK</h1>
     </div>
 
     <div class="max-w-7xl mx-auto">
         <header class="mb-10 flex flex-col items-center">
             <div class="w-full flex justify-between items-start mb-4">
                 <div class="w-24 md:hidden">
-                    <h1 id="mobileBrandTitle" class="marker text-xl text-yellow-500 uppercase opacity-0 transition-opacity duration-300">KNACK</h1>
+                    <h1 id="mobileBrandTitle" class="marker text-xl text-yellow-500 uppercase opacity-0 transition-opacity duration-300">SACK</h1>
                 </div>
                 <div class="hidden md:block w-24"></div>
 
@@ -262,7 +262,7 @@
             <nav class="flex justify-center gap-12 border-b border-slate-800 w-full">
                 <button onclick="switchTab('problem')" id="tabBtn-problem" data-i18n="nav_problem" class="tab-btn active px-4 py-3 text-xs font-bold tracking-widest uppercase">Problem</button>
                 <button onclick="switchTab('visualizer')" id="tabBtn-visualizer" data-i18n="nav_solution" class="tab-btn px-4 py-3 text-xs font-bold tracking-widest uppercase">Solution</button>
-                <button onclick="switchTab('game')" id="tabBtn-game" data-i18n="nav_game" class="tab-btn px-4 py-3 text-xs font-bold tracking-widest uppercase">Play The Knack</button>
+                <button onclick="switchTab('game')" id="tabBtn-game" data-i18n="nav_game" class="tab-btn px-4 py-3 text-xs font-bold tracking-widest uppercase">Play The Sack</button>
             </nav>
         </header>
 
@@ -508,7 +508,7 @@
     <script>
         const i18n = {
             en: {
-                max_capacity: "Max Capacity (W)", nav_problem: "Problem", nav_solution: "Solution", nav_game: "Play The Knack",
+                max_capacity: "Max Capacity (W)", nav_problem: "Problem", nav_solution: "Solution", nav_game: "Play The Sack",
                 dataset_title: "Dataset", dp_table_title: "DP Table", dp_table_hint: "Hover over cells for logic",
                 backtrack_path: "Backtrack Path", available_items: "Items", reset_items: "Reset Selection",
                 total_weight: "Total Weight", total_value: "Total Value", optimality: "Optimality",
@@ -535,7 +535,7 @@
                 tip_compare: "Can we do better by taking {itemName}?\n\nOption A (skip): keep best so far = ${prev}\nOption B (take): ${val} + best with {remW}kg left = ${calc}\n\n→ M[{i}][{w}] = max(${prev}, ${calc}) = ${result}"
             },
             tr: {
-                max_capacity: "Kapasite (W)", nav_problem: "Problem", nav_solution: "Çözüm", nav_game: "Oyna",
+                max_capacity: "Kapasite (W)", nav_problem: "Problem", nav_solution: "Çözüm", nav_game: "Çantayı Doldur",
                 dataset_title: "Eşyalar", dp_table_title: "DP Tablosu", dp_table_hint: "Hücrelere gel, hesabı gör",
                 backtrack_path: "Geri İzleme Yolu", available_items: "Eşyalar", reset_items: "Sıfırla",
                 total_weight: "Toplam Ağırlık", total_value: "Toplam Değer", optimality: "Optimallik",
@@ -579,7 +579,7 @@
             { items:6, cap:14, diff:'hard',   en:'Heavy Decisions',  tr:'Ağır Hesap' },
             { items:7, cap:14, diff:'hard',   en:'Expert Territory', tr:'Uzman Seviyesi' },
             { items:7, cap:16, diff:'hard',   en:'Master Class',     tr:'Usta İşi' },
-            { items:8, cap:18, diff:'hard',   en:'The Knack',        tr:'The Knack' },
+            { items:8, cap:18, diff:'hard',   en:'The Sack',         tr:'Çanta' },
         ];
         let currentLevel = 0, levelMode = true;
         let sessionStars = [], streak = 0, bestStreak = 0;
@@ -1122,7 +1122,7 @@
                 perfect: [
                     "Flawless. You found the global optimum.",
                     "Textbook perfect. Dynamic Programming would be proud.",
-                    "100% optimal. You have The Knack.",
+                    "100% optimal. You mastered The Sack.",
                     "Nothing wasted, nothing missed. Perfect strategy.",
                     "You just out-computed the brute force. Respect."
                 ],
@@ -1153,7 +1153,7 @@
                 perfect: [
                     "Tam isabet! Optimumu yakaladın.",
                     "Kitaptaki gibi çözüm. DP hocası bile beğenir.",
-                    "%100 optimal. Bu işin knack'i sende var.",
+                    "%100 optimal. Çantanın ustası sensin.",
                     "Gram boşluk yok, kuruş kayıp yok. Harika!",
                     "Brute force'a gerek kalmadı, kafadan çözdün."
                 ],
