@@ -535,31 +535,31 @@
                 tip_compare: "Can we do better by taking {itemName}?\n\nOption A (skip): keep best so far = ${prev}\nOption B (take): ${val} + best with {remW}kg left = ${calc}\n\n→ M[{i}][{w}] = max(${prev}, ${calc}) = ${result}"
             },
             tr: {
-                max_capacity: "Maks. Kapasite", nav_problem: "Problem", nav_solution: "Analiz", nav_game: "Oyunu Oyna",
-                dataset_title: "Veri Seti", dp_table_title: "DP Tablosu", dp_table_hint: "Mantık için üzerine gel",
-                backtrack_path: "Geri İzleme", available_items: "Eşyalar", reset_items: "Seçimi Sıfırla",
+                max_capacity: "Kapasite (W)", nav_problem: "Problem", nav_solution: "Çözüm", nav_game: "Oyna",
+                dataset_title: "Eşyalar", dp_table_title: "DP Tablosu", dp_table_hint: "Hücrelere gel, hesabı gör",
+                backtrack_path: "Geri İzleme Yolu", available_items: "Eşyalar", reset_items: "Sıfırla",
                 total_weight: "Toplam Ağırlık", total_value: "Toplam Değer", optimality: "Optimallik",
-                inventory_log: "Envanter Kaydı", view_analysis: "Optimumu Gör", config_title: "Ayarlar",
-                overloaded: "AŞILDI", picked: "Alındı", skipped: "Geçildi", row_empty: "Boş",
-                time_up: "Süre doldu!", difficulty: "Zorluk",
+                inventory_log: "Çanta İçeriği", view_analysis: "Sonucu Gör", config_title: "Ayarlar",
+                overloaded: "KAPASİTE AŞILDI", picked: "Alındı", skipped: "Bırakıldı", row_empty: "Boş",
+                time_up: "Süre bitti!", difficulty: "Zorluk",
                 diff_easy: "Kolay", diff_medium: "Orta", diff_hard: "Zor",
                 prob_title: "0/1 Sırt Çantası Problemi",
-                prob_subtitle: "Klasik bir kombinatoryal optimizasyon problemi",
-                prob_what_title: "Nedir?",
-                prob_what: "Maksimum ağırlık kapasitesi W olan bir çantanız var. Her birinin bir ağırlığı ve değeri olan n adet eşya verilir. Amacınız, ağırlık sınırını aşmadan toplam değeri en yüksek yapacak bir alt küme seçmektir. Her eşya ya alınır ya da bırakılır (0 veya 1) -- bir eşyanın kesri alınamaz.",
-                prob_formal: "Formal Tanım",
+                prob_subtitle: "Kombinatoryal optimizasyonun temel taşlarından biri",
+                prob_what_title: "Ne bu?",
+                prob_what: "Elimizde en fazla W kilogram taşıyabilen bir çanta var. Önümüzde n tane eşya duruyor; her birinin bir ağırlığı ve bir değeri var. Amaç basit: çantaya sığdırabildiğimiz eşyalarla toplam değeri en yükseğe çıkarmak. Ama bir eşyayı ya komple alırsın ya da hiç almazsın -- yarısını alamazsın. İşte '0/1' buradan geliyor.",
+                prob_formal: "Matematiksel Tanım",
                 prob_why_title: "Neden önemli?",
-                prob_why: "Sırt çantası problemi her yerde karşımıza çıkar: bütçe tahsisi, kargo yükleme, kaynak planlaması, portföy optimizasyonu ve kesim stoku. Genel olarak NP-zordur, yani tüm örnekleri hızla çözen bilinen bir algoritma yoktur. Ancak kapasite W bir tam sayı olduğunda, Dinamik Programlama O(nW) sürede çözer -- sözde-polinom, ama pratikte yeterince hızlı.",
-                prob_greedy_title: "Neden açgözlü olmak yetmez?",
-                prob_greedy: "Açgözlü yaklaşım (her zaman en iyi değer/ağırlık oranına sahip eşyayı al) sezgisel görünür ama başarısız olur. Örnek: kapasite = 10, eşyalar A($6, 1kg), B($10, 2kg), C($12, 3kg), D($15, 5kg). Açgözlü orana göre sıralar (A=6, B=5, C=4, D=3) ve A+B+C = $28, 6kg alır. Ama optimal B+C+D = $37, 10kg'dır. Açgözlü hafif eşyaları tercih ederek çantayı tam dolduran ağır kombinasyonu kaçırdı.",
-                prob_dp_title: "DP Çözümü",
-                prob_dp: "Dinamik Programlama, her hücrenin ilk i eşya ile w kapasitede elde edilebilecek en iyi değeri temsil ettiği M[i][w] tablosu oluşturur. Her eşya için iki seçeneği karşılaştırırız:",
-                prob_dp2: "Son cevap M[n][W]'dir. Hangi eşyaların seçildiğini bulmak için tabloyu geriye izleriz: M[i][w], M[i-1][w]'den farklıysa, i. eşya seçilmiştir.",
+                prob_why: "Bu problem sadece teoride kalmıyor. Bütçe dağıtımı, kargo yükleme, proje seçimi, yatırım portföyü ve kesme-paketleme gibi gerçek hayat problemlerinin hepsi aslında birer sırt çantası problemi. Genel haliyle NP-zor, yani her durumu hızlıca çözen bir algoritma bilmiyoruz. Ama kapasite W tam sayı olduğunda Dinamik Programlama ile O(nW) zamanda çözebiliyoruz -- pratikte gayet hızlı.",
+                prob_greedy_title: "Açgözlü yaklaşım neden tutmuyor?",
+                prob_greedy: "\"En iyi değer/ağırlık oranını seç\" mantığı kulağa hoş geliyor ama yanıltıcı. Örnek: kapasite = 10, eşyalar A($6, 1kg), B($10, 2kg), C($12, 3kg), D($15, 5kg). Açgözlü orana bakar (A=6, B=5, C=4, D=3) ve A+B+C = $28, 6kg alır. Oysa B+C+D = $37, 10kg ile çantayı tam doldurarak $9 daha fazla kazanabilirdik. Açgözlü hafif eşyalara takılıp asıl kazançlı kombinasyonu kaçırdı.",
+                prob_dp_title: "Dinamik Programlama Çözümü",
+                prob_dp: "DP, bir M[i][w] tablosu kurar. Her hücre \"ilk i eşyayla w kapasitede en fazla ne değer toplanır?\" sorusunun cevabını tutar. Her eşya için iki seçenek karşılaştırılır:",
+                prob_dp2: "Cevap M[n][W] hücresinde. Hangi eşyaların alındığını bulmak için tabloyu geriye doğru izleriz: eğer M[i][w] ile M[i-1][w] farklıysa, demek ki i. eşya çantaya konmuş.",
                 prob_complexity_title: "Karmaşıklık",
-                prob_cta: "Kendin dene",
-                tip_base: "Satır 0 veya sütun 0: eşya veya kapasite yok.\nTemel durum → değer her zaman 0.",
-                tip_skip: "Bu eşya {itemW}kg ama yalnızca {w}kg\nkapasite var. Sığmıyor!\n→ Onsuz en iyi değeri koru: {prev}",
-                tip_compare: "{itemName} alarak daha iyi yapabilir miyiz?\n\nSeçenek A (atla): şu ana kadarki en iyi = ${prev}\nSeçenek B (al): ${val} + {remW}kg ile en iyi = ${calc}\n\n→ M[{i}][{w}] = max(${prev}, ${calc}) = ${result}"
+                prob_cta: "Hadi dene!",
+                tip_base: "Satır 0 ya da sütun 0: eşya ya da kapasite yok.\nBaşlangıç durumu → değer her zaman 0.",
+                tip_skip: "Bu eşya {itemW}kg ama elimizde sadece {w}kg yer var.\nSığmıyor!\n→ Bu eşya olmadan en iyi değeri koruyoruz: {prev}",
+                tip_compare: "{itemName} alsak daha mı iyi olur?\n\nA) Alma: eldeki en iyi = ${prev}\nB) Al: ${val} + kalan {remW}kg ile en iyi = ${calc}\n\n→ M[{i}][{w}] = max(${prev}, ${calc}) = ${result}"
             }
         };
 
@@ -570,15 +570,15 @@
 
         // Level progression
         const levels = [
-            { items:3, cap:8,  diff:'easy',   en:'Warm Up',         tr:'Isınma' },
-            { items:4, cap:9,  diff:'easy',   en:'Getting Started', tr:'Başlangıç' },
-            { items:4, cap:10, diff:'medium', en:'First Challenge',  tr:'İlk Meydan Okuma' },
-            { items:5, cap:10, diff:'medium', en:'Stacking Up',       tr:'Hızlanıyor' },
-            { items:5, cap:12, diff:'medium', en:'Tricky Choices',   tr:'Zor Seçimler' },
-            { items:6, cap:12, diff:'hard',   en:'The Trap',         tr:'Tuzak' },
-            { items:6, cap:14, diff:'hard',   en:'Heavy Decisions',  tr:'Ağır Kararlar' },
-            { items:7, cap:14, diff:'hard',   en:'Expert Territory', tr:'Uzman Bölgesi' },
-            { items:7, cap:16, diff:'hard',   en:'Master Class',     tr:'Usta Sınıfı' },
+            { items:3, cap:8,  diff:'easy',   en:'Warm Up',         tr:'Isınma Turu' },
+            { items:4, cap:9,  diff:'easy',   en:'Getting Started', tr:'İlk Adım' },
+            { items:4, cap:10, diff:'medium', en:'First Challenge',  tr:'İlk Sınav' },
+            { items:5, cap:10, diff:'medium', en:'Stacking Up',       tr:'İşler Kızışıyor' },
+            { items:5, cap:12, diff:'medium', en:'Tricky Choices',   tr:'Zor Tercih' },
+            { items:6, cap:12, diff:'hard',   en:'The Trap',         tr:'Tuzağa Dikkat' },
+            { items:6, cap:14, diff:'hard',   en:'Heavy Decisions',  tr:'Ağır Hesap' },
+            { items:7, cap:14, diff:'hard',   en:'Expert Territory', tr:'Uzman Seviyesi' },
+            { items:7, cap:16, diff:'hard',   en:'Master Class',     tr:'Usta İşi' },
             { items:8, cap:18, diff:'hard',   en:'The Knack',        tr:'The Knack' },
         ];
         let currentLevel = 0, levelMode = true;
@@ -1151,33 +1151,33 @@
             },
             tr: {
                 perfect: [
-                    "Kusursuz. Global optimumu buldun.",
-                    "Ders kitabı gibi. Dinamik Programlama gurur duyardı.",
-                    "Yüzde yüz optimal. Sende o beceri var.",
-                    "Hiçbir şey boşa gitmedi. Mükemmel strateji.",
-                    "Brute force'u geçtin. Saygılar."
+                    "Tam isabet! Optimumu yakaladın.",
+                    "Kitaptaki gibi çözüm. DP hocası bile beğenir.",
+                    "%100 optimal. Bu işin knack'i sende var.",
+                    "Gram boşluk yok, kuruş kayıp yok. Harika!",
+                    "Brute force'a gerek kalmadı, kafadan çözdün."
                 ],
                 great: [
-                    "Çok yakın! Optimumun bir tık altındasın.",
-                    "Neredeyse mükemmel. Küçük bir değişiklik yeterli.",
-                    "Etkileyici. DP çözümüne çok yaklaştın.",
-                    "Güçlü seçim. Mükemmelliğe az kaldı."
+                    "Az kaldı! Optimuma çok yakınsın.",
+                    "Neredeyse mükemmel. Bir eşyayı değiştirsen tutar.",
+                    "Güzel hamle. DP tablosuna bir göz at, farkı bulursun.",
+                    "Kuvvetli seçim, son adıma kadar geldin."
                 ],
                 good: [
-                    "Sağlam deneme, ama optimize edilebilir.",
-                    "İyi sezgi! Ama optimal bir sürpriz saklıyor.",
-                    "Fena değil. Değer/kg oranlarını düşün.",
-                    "İyi bir toplam, ama matematik daha fazlasını söylüyor."
+                    "Fena değil ama daha iyisi var. Tekrar düşün.",
+                    "İyi başlangıç! Değer/ağırlık oranlarını karşılaştır.",
+                    "Sezgilerin iyi çalışıyor, ama matematik başka diyor.",
+                    "İdare eder. Ama çantada hâlâ boş yer var."
                 ],
                 low: [
-                    "Çantanın daha çok potansiyeli var. Farklı dene.",
-                    "Açgözlü seçimler yanıltıcı olabilir. DP düşün!",
-                    "Ağır her zaman değerli demek değil.",
-                    "Masada hazine kaldı. Denemeye devam et."
+                    "Çantanın kapasitesi boşa gidiyor. Farklı dene.",
+                    "Açgözlü seçim tuzağına düşmüş olabilirsin.",
+                    "Ağır eşya her zaman iyi eşya değil!",
+                    "Masada ciddi değer kaldı. Bir daha bak."
                 ],
                 empty: [
-                    "Çanta boş. Cesaret eden kazanır!",
-                    "Hiçbir şey seçmedin. Eşyaları dene!"
+                    "Çanta bomboş! Hadi birkaç eşya seç.",
+                    "Hiçbir şey almadan kazanamazsın. Dene!"
                 ]
             }
         };
